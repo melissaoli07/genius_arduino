@@ -1,11 +1,11 @@
 # Jogo Genius com Arduino
 
-Projeto do 4º semestre da faculdade FIAP.
+ Melissa de Oliveira Pecoraro RM:98698  
+ Roberto Menezes dos Santos RM:552520      
 
-Melissa de Oliveira Pecoraro 
-Roberto Menezes dos Santos 
+Projeto do 4º semestre da faculdade FIAP.  
 
-Este projeto implementa o clássico jogo "Genius" utilizando a plataforma Arduino.
+Este projeto implementa o clássico jogo Genius utilizando a plataforma Arduino.
 
 O objetivo do jogo é testar a memória do jogador, que deve repetir uma sequência de cores e sons que aumentam em dificuldade a cada rodada.
 
