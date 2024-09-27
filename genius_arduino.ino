@@ -1,3 +1,41 @@
+enum GameState
+{
+  START,
+  RUNNING,
+  GAME_OVER,
+  PLAY_AGAIN
+};
+
+enum COLOR
+{
+  RED;
+  GREEN;
+  BLUE;
+  YELLOW;
+};
+
+struct RGB
+{
+  bool red;
+  bool green;
+  bool blue;
+  bool yellow;
+};
+
+struct Sequencia
+{
+  // tempo espera entre padrão de leds
+  int espera;
+  RGB rgb[];
+};
+
+struct Nivel
+{
+  int numero_nivel;
+  int vel = 1;
+  Sequencia sequencia[];
+};
+
 // Leds
 const int LED_RED = 6;
 const int LED_BLUE = 7;
@@ -13,31 +51,33 @@ const int BTN_GREEN = 11;
 // Buzzer
 const int BUZZER = 12;
 
+// Variaveis globais
 int btn_red_vl;
 int btn_blue_vl;
 int btn_yellow_vl;
 int btn_green_vl;
 
-enum GameState
-{
-  START,
-  RUNNING,
-  GAME_OVER,
-  PLAY_AGAIN
-};
-
-struct Level
-{
-  int numero_level;
-  int sequencia;
-};
-
+// Definições de jogo
 GameState state = START;
+Sequencia sequencia_idle = {
+  100,
+  {
+    {true, false, true, false},
+    {false, false, true, false},
+    {true, true, true, false},
+    {false, false, false, true}
+  },
+};
 
-// Gera as sequencia
+
+// Espera o jogador iniciar o jogo
 void idle();
+bool verificaBotaoEspecificoClicou();
+// Se algum dos botoes for clicado retorna true
+bool verificaAlgumBotaoClicou();
 // Acende a cor enviada por parametro
-void onBtnClick(char cor[]);
+void onBtnClick();
+// Quando o funcionário
 void init();
 
 void setup()
@@ -59,56 +99,96 @@ void setup()
 
 void loop()
 {
-  btn_red_vl = digitalRead(BTN_RED);
-  btn_blue_vl = digitalRead(BTN_BLUE);
-  btn_yellow_vl = digitalRead(BTN_YELLOW);
-  btn_green_vl = digitalRead(BTN_GREEN);
-
   switch (state)
   {
   case START:
+    idle();
     break;
   case RUNNING:
+    Serial.println("I\'m running");
     break;
   case GAME_OVER:
     break;
   case PLAY_AGAIN:
     break;
   };
+  
+  // btn_red_vl = digitalRead(BTN_RED);
+  // btn_blue_vl = digitalRead(BTN_BLUE);
+  // btn_yellow_vl = digitalRead(BTN_YELLOW);
+  // btn_green_vl = digitalRead(BTN_GREEN);
 }
 
 void idle()
 {
-  if (btn_red_vl == LOW)
+  
+  for(int i = 0; i < 4; i++)
   {
-    digitalWrite(LED_RED, HIGH);
-    tone(BUZZER, 100);
-    delay(100);
-    noTone(BUZZER);
-    digitalWrite(LED_RED, LOW);
+    if(verificaAlgumBotaoClicou()){
+        state = RUNNING;
+      
+        digitalWrite(LED_RED, LOW);
+        digitalWrite(LED_GREEN, LOW);
+        digitalWrite(LED_BLUE, LOW);
+        digitalWrite(LED_YELLOW, LOW);
+    	break;
+    };
+
+    digitalWrite(LED_RED, sequencia_idle.rgb[i].red);
+	delay(sequencia_idle.espera);
+
+    digitalWrite(LED_GREEN, sequencia_idle.rgb[i].green);
+    delay(sequencia_idle.espera);
+
+    digitalWrite(LED_BLUE, sequencia_idle.rgb[i].blue);
+	delay(sequencia_idle.espera);
+   
+    digitalWrite(LED_YELLOW, sequencia_idle.rgb[i].yellow);
+    delay(sequencia_idle.espera);
   }
-  else if (btn_blue_vl == LOW)
-  {
-    digitalWrite(LED_BLUE, HIGH);
-    tone(BUZZER, 500);
-    delay(100);
-    noTone(BUZZER);
-    digitalWrite(LED_BLUE, LOW);
-  }
-  else if (btn_yellow_vl == LOW)
-  {
-    digitalWrite(LED_YELLOW, HIGH);
-    tone(BUZZER, 880);
-    delay(100);
-    noTone(BUZZER);
-    digitalWrite(LED_YELLOW, LOW);
-  }
-  else if (btn_green_vl == LOW)
-  {
-    digitalWrite(LED_GREEN, HIGH);
-    tone(BUZZER, 764);
-    delay(100);
-    noTone(BUZZER);
-    digitalWrite(LED_GREEN, LOW);
-  }
+  
 }
+
+bool verificaAlgumBotaoClicou()
+{
+    
+  btn_red_vl = digitalRead(BTN_RED);
+  btn_blue_vl = digitalRead(BTN_BLUE);
+  btn_yellow_vl = digitalRead(BTN_YELLOW);
+  btn_green_vl = digitalRead(BTN_GREEN);
+  
+  if (btn_red_vl == LOW 
+      or btn_blue_vl == LOW
+      or btn_yellow_vl == LOW
+      or btn_green_vl == LOW)
+  {
+    return true;
+  }
+  
+  return false;
+};
+
+bool verificaBotaoEspecificoClicou(COLOR color)
+{
+  btn_red_vl = digitalRead(BTN_RED);
+  btn_blue_vl = digitalRead(BTN_BLUE);
+  btn_yellow_vl = digitalRead(BTN_YELLOW);
+  btn_green_vl = digitalRead(BTN_GREEN);
+  
+  if (btn_red_vl == LOW and RED == cor)
+  {
+    return true;
+  }else if( btn_blue_vl == LOW && BLUE == cor)
+  {
+    return true;
+  }else if(btn_yellow_vl == LOW && YELLOW == cor)
+  {
+    return true;
+  }else if(btn_green_vl == LOW && GREEN == cor)
+  {
+    return true;
+  }
+  
+  return false;
+  
+};
