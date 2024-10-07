@@ -6,12 +6,20 @@ enum GameState
   PLAY_AGAIN
 };
 
-enum COLOR
+enum NivelDificuldade
 {
-  RED;
-  GREEN;
-  BLUE;
-  YELLOW;
+  EASY = 0,
+  MEDIUM = 1,
+  HARD = 2,
+  VERY_HARD = 3
+}
+
+enum Color
+{
+  RED,
+  GREEN,
+  BLUE,
+  YELLOW
 };
 
 struct RGB
@@ -22,11 +30,16 @@ struct RGB
   bool yellow;
 };
 
-struct Sequencia
+struct SequenciaLeds
 {
   // tempo espera entre padrão de leds
   int espera;
   RGB rgb[];
+};
+
+struct SequenciaJogo
+{
+  Color cores[];
 };
 
 struct Nivel
@@ -56,10 +69,11 @@ int btn_red_vl;
 int btn_blue_vl;
 int btn_yellow_vl;
 int btn_green_vl;
+int tempo_resposta_jogador = 300; // em milissegundos
 
 // Definições de jogo
 GameState state = START;
-Sequencia sequencia_idle = {
+SequenciaLeds sequencia_idle = {
   100,
   {
     {true, false, true, false},
@@ -68,17 +82,22 @@ Sequencia sequencia_idle = {
     {false, false, false, true}
   },
 };
+NivelDificuldade dificuldade = EASY;
 
 
 // Espera o jogador iniciar o jogo
 void idle();
-bool verificaBotaoEspecificoClicou();
+bool verificaBotaoEspecificoClicou(Color cor);
 // Se algum dos botoes for clicado retorna true
 bool verificaAlgumBotaoClicou();
 // Acende a cor enviada por parametro
 void onBtnClick();
-// Quando o funcionário
-void init();
+// Quando o iniciar o jogo inicia cria a sequencia
+SequenciaJogo criarSequenciaJogo();
+// Verifica se as entradas do usuario estão dentro 
+// da sequencia gerada
+bool verificaSequenciaJogador(SequenciaJogo sequencia);
+
 
 void setup()
 {
@@ -105,7 +124,8 @@ void loop()
     idle();
     break;
   case RUNNING:
-    Serial.println("I\'m running");
+    SequenciaJogo sequencia = criarSequencia();
+    bool errou = verificarSequenciaJogador(sequencia);
     break;
   case GAME_OVER:
     break;
@@ -118,6 +138,8 @@ void loop()
   // btn_yellow_vl = digitalRead(BTN_YELLOW);
   // btn_green_vl = digitalRead(BTN_GREEN);
 }
+
+
 
 void idle()
 {
@@ -168,7 +190,7 @@ bool verificaAlgumBotaoClicou()
   return false;
 };
 
-bool verificaBotaoEspecificoClicou(COLOR color)
+bool verificaBotaoEspecificoClicou(Color cor)
 {
   btn_red_vl = digitalRead(BTN_RED);
   btn_blue_vl = digitalRead(BTN_BLUE);
@@ -192,3 +214,15 @@ bool verificaBotaoEspecificoClicou(COLOR color)
   return false;
   
 };
+
+SequenciaJogo criarSequencia()
+{
+  SequenciaJogo sequencia;
+  
+  for (int i = 0; i < 4; i++)
+  {
+    sequencia.cores[i] = ;
+  }
+  
+  return sequencia;
+}
