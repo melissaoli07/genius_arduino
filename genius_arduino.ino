@@ -12,7 +12,7 @@ enum NivelDificuldade
   MEDIUM = 1,
   HARD = 2,
   VERY_HARD = 3
-}
+};
 
 enum Color
 {
@@ -88,12 +88,12 @@ NivelDificuldade dificuldade = EASY;
 // Espera o jogador iniciar o jogo
 void idle();
 bool verificaBotaoEspecificoClicou(Color cor);
-// Se algum dos botoes for clicado retorna true
+// Se algum dos botoes que for clicado retorna true
 bool verificaAlgumBotaoClicou();
 // Acende a cor enviada por parametro
 void onBtnClick();
 // Quando o iniciar o jogo inicia cria a sequencia
-SequenciaJogo criarSequenciaJogo();
+SequenciaJogo criarSequenciaJogo(); // criarSequenciaJogo ou criarSequencia ?
 // Verifica se as entradas do usuario estão dentro 
 // da sequencia gerada
 bool verificaSequenciaJogador(SequenciaJogo sequencia);
@@ -128,9 +128,16 @@ void loop()
     bool errou = verificarSequenciaJogador(sequencia);
     break;
   case GAME_OVER:
+  //caso seja game over, o buzzer apitar e voltar pro estado de jogar - play again
+    digitalWrite(BUZZER, HIGH);
+    delay(1000); 
+    digitalWrite(BUZZER, LOW);
+    state = PLAY_AGAIN; 
     break;
   case PLAY_AGAIN:
+  // ver alguma forma de mudar o nivel do jogo 
     break;
+
   };
   
   // btn_red_vl = digitalRead(BTN_RED);
@@ -138,6 +145,7 @@ void loop()
   // btn_yellow_vl = digitalRead(BTN_YELLOW);
   // btn_green_vl = digitalRead(BTN_GREEN);
 }
+
 
 
 
@@ -171,6 +179,7 @@ void idle()
   
 }
 
+
 bool verificaAlgumBotaoClicou()
 {
     
@@ -189,6 +198,8 @@ bool verificaAlgumBotaoClicou()
   
   return false;
 };
+
+
 
 bool verificaBotaoEspecificoClicou(Color cor)
 {
@@ -215,14 +226,50 @@ bool verificaBotaoEspecificoClicou(Color cor)
   
 };
 
-SequenciaJogo criarSequencia()
-{
+
+
+
+// definir o tamanho da sequencia no parametro e ir definindo/mudando de acordo com o nível
+SequenciaJogo criarSequencia(int tamanho_sequencia){
   SequenciaJogo sequencia;
+  sequencia.cores = new Color[tamanho_sequencia];
   
-  for (int i = 0; i < 4; i++)
-  {
-    sequencia.cores[i] = ;
+  for (int i = 0; i < tamanho_sequencia; i++){
+  // utiliza o random pra gerar numero aleatorio entre 0 e 3, as 4 cores possiveis e converte para Color 
+    sequencia.cores[i] = static_cast<Color>(random(0, 4)); 
   }
   
   return sequencia;
 }
+
+
+
+
+bool verificaSequenciaJogador(SequenciaJogo sequencia) {
+    
+}
+
+
+
+void onBtnClick(Color cor) {
+    switch (cor) {
+        case RED:
+            tone(BUZZER, 262); // Nota C
+            break;
+        case GREEN:
+            tone(BUZZER, 294); // Nota D
+            break;
+        case BLUE:
+            tone(BUZZER, 330); // Nota E
+            break;
+        case YELLOW:
+            tone(BUZZER, 392); // Nota G
+            break;
+    }
+    delay(200);
+    noTone(BUZZER);
+}
+
+
+
+
