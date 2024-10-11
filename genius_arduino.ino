@@ -1,17 +1,17 @@
 enum GameState
 {
-  START,
+  IDLE,
   RUNNING,
   GAME_OVER,
-  PLAY_AGAIN
+  RESTART
 };
 
 enum NivelDificuldade
 {
-  EASY = 0,
-  MEDIUM = 1,
-  HARD = 2,
-  VERY_HARD = 3
+  EASY,
+  MEDIUM,
+  HARD,
+  VERY_HARD
 };
 
 enum Color
@@ -32,21 +32,15 @@ struct RGB
 
 struct SequenciaLeds
 {
-  // tempo espera entre padrão de leds
+  // tempo espera entre padroes de leds
   int espera;
   RGB rgb[];
-};
-
-struct SequenciaJogo
-{
-  Color cores[];
 };
 
 struct Nivel
 {
   int numero_nivel;
-  int vel = 1;
-  Sequencia sequencia[];
+  RGB sequencia[];
 };
 
 // Leds
@@ -70,20 +64,19 @@ int btn_blue_vl;
 int btn_yellow_vl;
 int btn_green_vl;
 int tempo_resposta_jogador = 300; // em milissegundos
+int tamanhoSenquenciaJogo = 4;
+RGB sequenciaJogo[4];
 
-// Definições de jogo
-GameState state = START;
+// Definicoes de jogo
+GameState state = IDLE;
 SequenciaLeds sequencia_idle = {
-  100,
-  {
-    {true, false, true, false},
-    {false, false, true, false},
-    {true, true, true, false},
-    {false, false, false, true}
-  },
+    100,
+    {{true, false, true, false},
+     {false, false, true, false},
+     {true, true, true, false},
+     {false, false, false, true}},
 };
 NivelDificuldade dificuldade = EASY;
-
 
 // Espera o jogador iniciar o jogo
 void idle();
@@ -91,13 +84,12 @@ bool verificaBotaoEspecificoClicou(Color cor);
 // Se algum dos botoes que for clicado retorna true
 bool verificaAlgumBotaoClicou();
 // Acende a cor enviada por parametro
-void onBtnClick();
+void onBtnClick(Color cor);
 // Quando o iniciar o jogo inicia cria a sequencia
-SequenciaJogo criarSequenciaJogo(); // criarSequenciaJogo ou criarSequencia ?
-// Verifica se as entradas do usuario estão dentro 
+void criarSequenciaJogador(RGB arr[]); // criarSequenciaJogo ou criarSequencia ?
+// Verifica se as entradas do usuario estao dentro
 // da sequencia gerada
-bool verificaSequenciaJogador(SequenciaJogo sequencia);
-
+bool verificaSequenciaJogador(RGB sequencia);
 
 void setup()
 {
@@ -118,88 +110,90 @@ void setup()
 
 void loop()
 {
+  RGB sequencia[tamanhoSenquenciaJogo];
+  bool errou;
   switch (state)
   {
-  case START:
+  case IDLE:
     idle();
     break;
   case RUNNING:
-    SequenciaJogo sequencia = criarSequencia();
-    bool errou = verificarSequenciaJogador(sequencia);
+    // criarSequenciaJogo(sequencia);
+    // resultado = verificaSequenciaJogador(sequencia);
+
+    // if(resultado == false)
+    // {
+    //   state = GAME_OVER;
+    // }
+
     break;
   case GAME_OVER:
-  //caso seja game over, o buzzer apitar e voltar pro estado de jogar - play again
+    // caso seja game over, o buzzer apitar e voltar pro estado de jogar - play again
     digitalWrite(BUZZER, HIGH);
-    delay(1000); 
+    delay(1000);
     digitalWrite(BUZZER, LOW);
-    state = PLAY_AGAIN; 
+    state = RESTART;
     break;
-  case PLAY_AGAIN:
-  // ver alguma forma de mudar o nivel do jogo 
-    break;
-
+    // case RESTART:
+    // ver alguma forma de mudar o nivel do jogo
+    // break;
   };
-  
+
   // btn_red_vl = digitalRead(BTN_RED);
   // btn_blue_vl = digitalRead(BTN_BLUE);
   // btn_yellow_vl = digitalRead(BTN_YELLOW);
   // btn_green_vl = digitalRead(BTN_GREEN);
 }
 
-
-
+bool verificaSequenciaJogador()
+{
+}
 
 void idle()
 {
-  
-  for(int i = 0; i < 4; i++)
+
+  for (int i = 0; i < 4; i++)
   {
-    if(verificaAlgumBotaoClicou()){
-        state = RUNNING;
-      
-        digitalWrite(LED_RED, LOW);
-        digitalWrite(LED_GREEN, LOW);
-        digitalWrite(LED_BLUE, LOW);
-        digitalWrite(LED_YELLOW, LOW);
-    	break;
+    if (verificaAlgumBotaoClicou())
+    {
+      state = RUNNING;
+
+      digitalWrite(LED_RED, LOW);
+      digitalWrite(LED_GREEN, LOW);
+      digitalWrite(LED_BLUE, LOW);
+      digitalWrite(LED_YELLOW, LOW);
+      break;
     };
 
     digitalWrite(LED_RED, sequencia_idle.rgb[i].red);
-	delay(sequencia_idle.espera);
+    delay(sequencia_idle.espera);
 
     digitalWrite(LED_GREEN, sequencia_idle.rgb[i].green);
     delay(sequencia_idle.espera);
 
     digitalWrite(LED_BLUE, sequencia_idle.rgb[i].blue);
-	delay(sequencia_idle.espera);
-   
+    delay(sequencia_idle.espera);
+
     digitalWrite(LED_YELLOW, sequencia_idle.rgb[i].yellow);
     delay(sequencia_idle.espera);
   }
-  
 }
-
 
 bool verificaAlgumBotaoClicou()
 {
-    
+
   btn_red_vl = digitalRead(BTN_RED);
   btn_blue_vl = digitalRead(BTN_BLUE);
   btn_yellow_vl = digitalRead(BTN_YELLOW);
   btn_green_vl = digitalRead(BTN_GREEN);
-  
-  if (btn_red_vl == LOW 
-      or btn_blue_vl == LOW
-      or btn_yellow_vl == LOW
-      or btn_green_vl == LOW)
+
+  if (btn_red_vl == LOW or btn_blue_vl == LOW or btn_yellow_vl == LOW or btn_green_vl == LOW)
   {
     return true;
   }
-  
+
   return false;
 };
-
-
 
 bool verificaBotaoEspecificoClicou(Color cor)
 {
@@ -207,69 +201,53 @@ bool verificaBotaoEspecificoClicou(Color cor)
   btn_blue_vl = digitalRead(BTN_BLUE);
   btn_yellow_vl = digitalRead(BTN_YELLOW);
   btn_green_vl = digitalRead(BTN_GREEN);
-  
+
   if (btn_red_vl == LOW and RED == cor)
   {
     return true;
-  }else if( btn_blue_vl == LOW && BLUE == cor)
-  {
-    return true;
-  }else if(btn_yellow_vl == LOW && YELLOW == cor)
-  {
-    return true;
-  }else if(btn_green_vl == LOW && GREEN == cor)
+  }
+  else if (btn_blue_vl == LOW && BLUE == cor)
   {
     return true;
   }
-  
+  else if (btn_yellow_vl == LOW && YELLOW == cor)
+  {
+    return true;
+  }
+  else if (btn_green_vl == LOW && GREEN == cor)
+  {
+    return true;
+  }
+
   return false;
-  
 };
 
-
-
-
-// definir o tamanho da sequencia no parametro e ir definindo/mudando de acordo com o nível
-SequenciaJogo criarSequencia(int tamanho_sequencia){
-  SequenciaJogo sequencia;
-  sequencia.cores = new Color[tamanho_sequencia];
-  
-  for (int i = 0; i < tamanho_sequencia; i++){
-  // utiliza o random pra gerar numero aleatorio entre 0 e 3, as 4 cores possiveis e converte para Color 
-    sequencia.cores[i] = static_cast<Color>(random(0, 4)); 
+// definir o tamanho da sequencia no parametro e ir definindo/mudando de acordo com o n├¡vel
+void criarSequenciaJogador(RGB arr[])
+{
+  for (int i = 0; i < tamanhoSenquenciaJogo; i++)
+  {
+    // utiliza o random pra gerar numero aleatorio entre 0 e 3, as 4 cores possiveis e converte para Color
+    // sequencia.cores[i] = static_cast<RGB>(random(0, 4));
   }
-  
-  return sequencia;
 }
 
-
-
-
-bool verificaSequenciaJogador(SequenciaJogo sequencia) {
-    
+void onBtnClick(Color cor)
+{
+  // switch (cor) {
+  //     case RED:
+  //         tone(BUZZER, 262); // Nota C
+  //         break;
+  //     case GREEN:
+  //         tone(BUZZER, 294); // Nota D
+  //         break;
+  //     case BLUE:
+  //         tone(BUZZER, 330); // Nota E
+  //         break;
+  //     case YELLOW:
+  //         tone(BUZZER, 392); // Nota G
+  //         break;
+  // }
+  delay(200);
+  noTone(BUZZER);
 }
-
-
-
-void onBtnClick(Color cor) {
-    switch (cor) {
-        case RED:
-            tone(BUZZER, 262); // Nota C
-            break;
-        case GREEN:
-            tone(BUZZER, 294); // Nota D
-            break;
-        case BLUE:
-            tone(BUZZER, 330); // Nota E
-            break;
-        case YELLOW:
-            tone(BUZZER, 392); // Nota G
-            break;
-    }
-    delay(200);
-    noTone(BUZZER);
-}
-
-
-
-
