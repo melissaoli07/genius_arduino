@@ -62,7 +62,7 @@ int btn_red_vl;
 int btn_blue_vl;
 int btn_yellow_vl;
 int btn_green_vl;
-int tempoRespostaJogador = 300; // em milissegundos
+int tempoRespostaJogador = 500; // em milissegundos
 int tamanhoSequenciaJogo = 4;
 int nivelAtual = 1;
 int recordeAtual = 0;
@@ -72,10 +72,10 @@ int maiorRecorde = 0;
 GameState state = IDLE;
 SequenciaLeds sequencia_idle = {
     100,
-    {{true, false, true, false},
-     {false, false, true, false},
-     {true, true, true, false},
-     {false, false, false, true}},
+    {{HIGH, LOW, HIGH, LOW},
+     {LOW, LOW, HIGH, LOW},
+     {HIGH, HIGH, HIGH, LOW},
+     {LOW, LOW, LOW, HIGH}},
 };
 NivelDificuldade dificuldade = EASY;
 
@@ -96,6 +96,7 @@ bool verificaSequenciaJogador(Color *sequencia);
 Color pegarBotaoJogador();
 void salvarRecorde();
 void atualizarDificuldade();
+void exibirSequencia(Color* sequencia);
 
 void setup()
 {
@@ -111,27 +112,35 @@ void setup()
 
   pinMode(BUZZER, OUTPUT);
 
+
   Serial.begin(9600);
+  randomSeed(analogRead(0));
 }
 
 void loop()
 {
   Color sequencia[tamanhoSequenciaJogo];
   bool resultado;
-
+  
   switch (state)
   {
   case IDLE:
+  Serial.println("idle");
     idle();
     break;
   case RUNNING:
+  Serial.println("running");
     nivelAtual++;
     if(nivelAtual > recordeAtual)
     {
       recordeAtual = nivelAtual;
     }
     criarSequenciaJogo(sequencia);
+    exibirSequencia(sequencia);
     resultado = verificaSequenciaJogador(sequencia);
+  Serial.println("resultado:");
+  
+  Serial.println(resultado);
 
     if (resultado == false)
     {
@@ -141,14 +150,16 @@ void loop()
     atualizarDificuldade();
     break;
   case GAME_OVER:
+  Serial.println("game over");
     // caso seja game over, o buzzer apitar e voltar pro estado de jogar - play again
-    digitalWrite(BUZZER, HIGH);
+    // digitalWrite(BUZZER, HIGH);
     delay(700);
-    digitalWrite(BUZZER, LOW);
+    // digitalWrite(BUZZER, LOW);
     salvarRecorde();
     state = RESTART;
     break;
   case RESTART:
+  Serial.println("restart");
     // reinicia o jogo para o estado inicial
     // ver alguma forma de mudar o nivel do jogo
     tamanhoSequenciaJogo = 4; // Reset da sequência inicial
@@ -161,10 +172,10 @@ void loop()
 
 void idle()
 {
-  
+  bool clicou;
   for (int i = 0; i < 4; i++)
   {
-    if (verificaAlgumBotaoClicou())
+    if (verificaAlgumBotaoClicou() != NONE_COLOR)
     {
       state = RUNNING;
 
@@ -172,6 +183,8 @@ void idle()
       digitalWrite(LED_GREEN, LOW);
       digitalWrite(LED_BLUE, LOW);
       digitalWrite(LED_YELLOW, LOW);
+
+      delay(500);
       break;
     };
 
@@ -291,7 +304,8 @@ bool verificaSequenciaJogador(Color *sequencia)
   for (int i = 0; i < tamanhoSequenciaJogo; i++)
   {
     entradaJogador = pegarBotaoJogador();
-    if (entradaJogador != NONE_COLOR && entradaJogador != sequencia[i])
+    Serial.println(entradaJogador);
+    if (entradaJogador != NONE_COLOR || entradaJogador != sequencia[i])
     {
       return false;
     }
@@ -302,7 +316,6 @@ bool verificaSequenciaJogador(Color *sequencia)
 
 Color pegarBotaoJogador()
 {
-  Color entrada;
   int comeco = millis();
   while (true)
   {
@@ -344,13 +357,42 @@ void salvarRecorde()
     maiorRecorde = recordeAtual;
   }
   
-  EEPROM.write(1, recordeAtual);
-  delay(10);
-  EEPROM.write(0, maiorRecorde);
-  delay(10);
+  // EEPROM.write(1, recordeAtual);
+  // delay(10);
+  // EEPROM.write(0, maiorRecorde);
+  // delay(10);
   
   Serial.print("Game Over! Seu recorde atual foi: ");
   Serial.println(recordeAtual);
   Serial.print("Maior recorde: ");
   Serial.println(maiorRecorde);
+}
+
+
+
+void exibirSequencia(Color* sequencia)
+{
+  for(int i = 0; i < tamanhoSequenciaJogo; i++)
+  {
+    if(sequencia[i] == RED){
+      digitalWrite(LED_RED, HIGH);
+      delay(500);
+      digitalWrite(LED_RED, LOW);
+
+    }else if(sequencia[i] == BLUE){
+      digitalWrite(LED_BLUE, HIGH);
+      delay(500);
+      digitalWrite(LED_BLUE, LOW);
+
+    }else if(sequencia[i] == GREEN){
+      digitalWrite(LED_GREEN, HIGH);
+      delay(500);
+      digitalWrite(LED_GREEN, LOW);
+    }else{
+      digitalWrite(LED_YELLOW, HIGH);
+      delay(500);
+      digitalWrite(LED_YELLOW, LOW);
+    }
+    delay(500);
+  }
 }
