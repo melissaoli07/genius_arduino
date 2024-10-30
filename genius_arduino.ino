@@ -38,19 +38,19 @@ struct SequenciaLeds {
 };
 
 // Leds
-const int LED_RED = 6;
-const int LED_BLUE = 7;
-const int LED_YELLOW = 8;
-const int LED_GREEN = 9;
+const int LED_RED = 21;
+const int LED_BLUE = 22;
+const int LED_YELLOW = 23;
+const int LED_GREEN = 25;
 
 // Buttons
-const int BTN_RED = 4;
-const int BTN_BLUE = 5;
-const int BTN_YELLOW = 10;
-const int BTN_GREEN = 11;
+const int BTN_RED = 18;
+const int BTN_BLUE = 19;
+const int BTN_YELLOW = 26;
+const int BTN_GREEN = 27;
 
 // Buzzer
-const int BUZZER = 12;
+const int BUZZER = 14;
 
 // Variaveis globais
 int localSalvarEEPROM;
@@ -78,7 +78,7 @@ SequenciaLeds sequencia_idle = {
     { HIGH, HIGH, HIGH, LOW },
     { LOW, LOW, LOW, HIGH } },
 };
-NivelDificuldade dificuldade = dificuldadeInicial;
+int dificuldade = dificuldadeInicial;
 Color* sequenciaCarregada = nullptr;
 
 // Espera o jogador iniciar o jogo
@@ -146,8 +146,6 @@ void loop() {
         }
       }
 
-      Serial.println(dificuldade);
-
       sequenciaAtual[tamanhoSequenciaJogo - 1] = novaCor;
 
       exibirSequencia(sequenciaAtual);
@@ -190,7 +188,7 @@ void loop() {
 }
 
 void idle() {
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < 6; i++) {
     if (verificaAlgumBotaoClicou() != NONE_COLOR) {
       state = RUNNING;
 
@@ -376,7 +374,7 @@ Color pegarBotaoJogador() {
 }
 
 void atualizarDificuldade() {
-  if (nivelAtual % 4 == 0) {  // Aumenta a dificuldade a cada 5 níveis
+  if (nivelAtual % 5 == 0) {  // Aumenta a dificuldade a cada 5 níveis
     if (dificuldade == EASY)
       dificuldade = MEDIUM;
     else if (dificuldade == MEDIUM)
@@ -397,10 +395,10 @@ void salvarRecorde() {
   EEPROM.write(0, localSalvarEEPROM);
   delay(10);
 
-  Serial.print("Game Over! Seu recorde atual foi: ");
-  Serial.println(recordeAtual);
-  Serial.print("Maior recorde: ");
-  Serial.println(maiorRecorde);
+  // Serial.print("Game Over! Seu recorde atual foi: ");
+  // Serial.println(recordeAtual);
+  // Serial.print("Maior recorde: ");
+  // Serial.println(maiorRecorde);
 }
 
 
