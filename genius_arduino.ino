@@ -146,6 +146,7 @@ void loop() {
   Color novaCor;
   Color* sequenciaAtual = nullptr;
   bool resultado;
+  Color* tempSequencia;
  
   switch (state) {
     case IDLE:
@@ -156,13 +157,14 @@ void loop() {
       novaCor = geraCorAleatoria();
  
       // Cria a nova sequência e copia a antiga, se houver
-      criarNovaSequencia();
-      if (sequenciaCarregada != nullptr) {
-        for (int i = 0; i < tamanhoSequenciaJogo - 1; i++) {
-          sequenciaCarregada[i] = sequenciaCarregada[i];
-        }
+      tempSequencia = new Color[tamanhoSequenciaJogo];
+      for (int i = 0; i < tamanhoSequenciaJogo - 1; i++) {
+        tempSequencia[i] = sequenciaCarregada[i];
       }
- 
+      tempSequencia[tamanhoSequenciaJogo - 1] = novaCor;
+      liberarMemoriaSequencia();
+      sequenciaCarregada = tempSequencia;
+      
       sequenciaCarregada[tamanhoSequenciaJogo - 1] = novaCor;
  
       exibirSequencia(sequenciaCarregada);
@@ -386,7 +388,7 @@ Color pegarBotaoJogador() {
 }
  
 void atualizarDificuldade() {
-  if (nivelAtual % 5 == 0) {  // Aumenta a dificuldade a cada 5 níveis
+  if (nivelAtual % 3 == 0) {  // Aumenta a dificuldade a cada 5 níveis
     if (dificuldade == EASY)
       dificuldade = MEDIUM;
     else if (dificuldade == MEDIUM)
@@ -401,11 +403,11 @@ void salvarRecorde() {
     maiorRecorde = recordeAtual;
   }
  
-  EEPROM.write(localSalvarEEPROM, maiorRecorde);
-  delay(10);
-  localSalvarEEPROM++;
-  EEPROM.write(0, localSalvarEEPROM);
-  delay(10);
+  // EEPROM.write(localSalvarEEPROM, maiorRecorde);
+  // delay(10);
+  // localSalvarEEPROM++;
+  // EEPROM.write(0, localSalvarEEPROM);
+  // delay(10);
  
   // Serial.print("Game Over! Seu recorde atual foi: ");
   // Serial.println(recordeAtual);
